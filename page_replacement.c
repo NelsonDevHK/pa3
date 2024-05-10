@@ -235,7 +235,7 @@ void FIFO_algorithm()
     int totalFault = 0;
     int CurS = 0;
     int CurF = 0;
-    int replacePos = 0;
+    int victimFrame = 0;
     while(CurS < reference_string_length){
         int s = reference_string[CurS];
         //printf("%d\n",match(s));
@@ -249,19 +249,19 @@ void FIFO_algorithm()
             }
             for(int i = 0 ; i < frames_available ; i++){// checking match
                 if(frames[i] == s){
+                    printf(template_no_page_fault, s);
                     CurS++;
-                    printf(template_no_page_fault, i);
                     break;
                 }
                 if(i == frames_available - 1){ // No Match
-                    frames[replacePos++] = s;
+                    frames[victimFrame++] = s;
                     CurS++;
                     totalFault++;
                     display_fault_frame(s);
                 }   
             }
-            if (replacePos == frames_available)
-                replacePos = 0;            
+            if (victimFrame == frames_available)
+                victimFrame = 0;            
         }
     printf(template_total_page_fault, totalFault);
 }
@@ -269,9 +269,44 @@ void FIFO_algorithm()
 void OPT_algorithm()
 {
     // TODO: Implement OPT replacement here
-    
+    int CurF = 0 ,totalFault = 0;
+    int victimFrame = -1;
+    for (int CurS = 0 ; CurS < reference_string_length ; CurS++){
+        int s = reference_string[CurS];
+        if(frames[CurF] == UNFILLED_FRAME && match(s) == -1){ // initialize when still empty
+            frames[CurF] = s;
+            CurF++;
+            CurS++;
+            totalFault++;
+            display_fault_frame(s);
+            continue;
+        }
+         for(int i = 0 ; i < frames_available ; i++){// checking match
+            if(frames[i] == s){
+                printf(template_no_page_fault, i);
+                CurS++;
+                break; // skip to line next CurS loop
+            }
+            // if(i == frames_available - 1){ // no match
+            //     victimFrame = -1;
+            //     for(int j = CurS + 1 ; j < reference_string_length ; j++){
+            //         for(int k = 0 ; k < frames_available; k++){
+            //             if(reference_string[j] == frames[k]){
+            //                 victimFrame = k;
+            //             }
+            //         }
+            //         if(j == reference_string_length - 1 && victimFrame == -1)
+            //             victimFrame = 0;
+            //     }
+            //     frames[victimFrame++] = s;
+            //     CurS++;
+            //     totalFault++;
+            //     display_fault_frame(s);
+            // }
+        }
+        printf("Page Faults: %d\n", totalFault);
+    }
 }
-
 void LRU_algorithm()
 {
     // TODO: Implement LRU replacement here
