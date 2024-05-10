@@ -271,41 +271,47 @@ void OPT_algorithm()
     // TODO: Implement OPT replacement here
     int CurF = 0 ,totalFault = 0;
     int victimFrame = -1;
+    int checkingFrames[MAX_FRAMES_AVAILABLE];
+    int checkingFrames_available = frames_available;
     for (int CurS = 0 ; CurS < reference_string_length ; CurS++){
+        for(int i = 0 ; i < frames_available; i++)
+            checkingFrames[i] = frames[i];
         int s = reference_string[CurS];
         if(frames[CurF] == UNFILLED_FRAME && match(s) == -1){ // initialize when still empty
             frames[CurF] = s;
             CurF++;
-            CurS++;
             totalFault++;
             display_fault_frame(s);
             continue;
         }
          for(int i = 0 ; i < frames_available ; i++){// checking match
             if(frames[i] == s){
-                printf(template_no_page_fault, i);
-                CurS++;
+                printf(template_no_page_fault, s);
                 break; // skip to line next CurS loop
             }
-            // if(i == frames_available - 1){ // no match
-            //     victimFrame = -1;
-            //     for(int j = CurS + 1 ; j < reference_string_length ; j++){
-            //         for(int k = 0 ; k < frames_available; k++){
-            //             if(reference_string[j] == frames[k]){
-            //                 victimFrame = k;
-            //             }
-            //         }
-            //         if(j == reference_string_length - 1 && victimFrame == -1)
-            //             victimFrame = 0;
-            //     }
-            //     frames[victimFrame++] = s;
-            //     CurS++;
-            //     totalFault++;
-            //     display_fault_frame(s);
-            // }
+            if(i == frames_available - 1){ // no match
+                victimFrame = -1;
+                for(int j = CurS + 1 ; j < reference_string_length ; j++){
+                    for(int k = 0 ; k < checkingFrames_available; k++){
+                        if(reference_string[j] == checkingFrames[k]){
+                            checkingFrames[k] = UNFILLED_FRAME;
+                            victimFrame = k;
+                        }
+                    }
+                    for(int j = 0 ; j < checkingFrames_available; j++){
+                        if(checkingFrames[j] != -1){
+                            victimFrame = j;
+                            break;
+                        }
+                    }
+                }
+                frames[victimFrame++] = s;
+                totalFault++;
+                display_fault_frame(s);
+            }
         }
-        printf("Page Faults: %d\n", totalFault);
     }
+        printf("Page Faults: %d\n", totalFault);
 }
 void LRU_algorithm()
 {
