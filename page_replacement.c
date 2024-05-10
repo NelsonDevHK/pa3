@@ -314,7 +314,47 @@ void OPT_algorithm()
 void LRU_algorithm()
 {
     // TODO: Implement LRU replacement here
-    
+    //counter Implement
+    int totalFault = 0,CurS = 0,CurF = 0,victimFrame = -1;
+    int checkingFrames[MAX_FRAMES_AVAILABLE];
+    int checkingFrames_available = frames_available;
+    while(CurS < reference_string_length){
+        for(int i = 0 ; i < frames_available; i++)
+            checkingFrames[i] = frames[i];
+        int s = reference_string[CurS];
+        if(frames[CurF] == UNFILLED_FRAME && match(s) == -1){ // NO MATCH & EMPTY LEFT
+            frames[CurF] = s;
+            CurF++;
+            CurS++;
+            totalFault++;
+            display_fault_frame(s);
+            continue;
+        }
+        for(int i = 0 ; i < frames_available ; i++){// checking match
+            if(frames[i] == s){
+                printf(template_no_page_fault, s);
+                CurS++;
+                break; // skip to line next CurS loop
+            }
+            //remember to handle edge outbound case of 0
+           if( i == frames_available - 1){ // No Match Ready to choose victimFrame
+                victimFrame = -1;
+                for(int j = CurS - 1; j >= 0 ; j--){
+                    for(int k = 0 ; k < checkingFrames_available; k++){
+                        if(checkingFrames[k] == reference_string[j]){
+                            checkingFrames[k] = UNFILLED_FRAME;
+                            victimFrame = k;
+                        }
+                    }
+                }
+                frames[victimFrame] = s;
+                totalFault++;
+                CurS++;
+                display_fault_frame(s);
+           }
+        }
+    }
+   printf(template_total_page_fault, totalFault);
 }
 
 
