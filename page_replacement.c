@@ -229,16 +229,12 @@ int match (int s){
 void FIFO_algorithm()
 {
     // TODO: Implement FIFO alogrithm here
-    // for(int i = 0 ; i < frames_available ; i++){
-    //     printf("%d",frames[i]);
-    // }
     int totalFault = 0;
     int CurS = 0;
     int CurF = 0;
     int victimFrame = 0;
     while(CurS < reference_string_length){
         int s = reference_string[CurS];
-        //printf("%d\n",match(s));
             if(frames[CurF] == UNFILLED_FRAME && match(s) == -1){
                 frames[CurF] = s;
                 CurF++;
@@ -291,27 +287,29 @@ void OPT_algorithm()
             }
             if(i == frames_available - 1){ // no match
                 victimFrame = -1;
-                for(int j = CurS + 1 ; j < reference_string_length ; j++){
-                    for(int k = 0 ; k < checkingFrames_available; k++){
-                        if(reference_string[j] == checkingFrames[k]){
-                            checkingFrames[k] = UNFILLED_FRAME;
-                            victimFrame = k;
+                if(CurS + 1 != reference_string_length){
+                    for(int j = CurS + 1 ; j < reference_string_length ; j++){
+                        for(int k = 0 ; k < checkingFrames_available; k++){
+                            if(reference_string[j] == checkingFrames[k]){
+                                checkingFrames[k] = UNFILLED_FRAME;
+                                victimFrame = k;
+                            }
+                        }
+                        for(int j = 0 ; j < checkingFrames_available; j++){
+                            if(checkingFrames[j] != -1){
+                                victimFrame = j;
+                                break;
+                            }
                         }
                     }
-                    for(int j = 0 ; j < checkingFrames_available; j++){
-                        if(checkingFrames[j] != -1){
-                            victimFrame = j;
-                            break;
-                        }
-                    }
-                }
-                frames[victimFrame++] = s;
+                frames[victimFrame] = s;
+                }else frames[0] = s;
                 totalFault++;
                 display_fault_frame(s);
             }
         }
     }
-        printf("Page Faults: %d\n", totalFault);
+        printf(template_total_page_fault, totalFault);
 }
 void LRU_algorithm()
 {
